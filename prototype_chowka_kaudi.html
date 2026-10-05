@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,Segoe UI,sans-serif;background:#b77d5d;color:#25180f}
+:root{--gold:#ffc400;--red:#ef2029;--blue:#3f49c8;--green:#9be21c;--paper:#fffdf5}
+.app{max-width:1180px;margin:auto;background:#d8aa84;min-height:100vh;border:6px solid #21140e;box-shadow:0 0 30px #0008}
+.header{padding:18px 24px;background:linear-gradient(90deg,#fff8df,#f5e1b4,#fff8df);border-bottom:5px solid var(--gold);display:flex;align-items:center;justify-content:space-between;gap:15px}
+.brand{font-family:Georgia,serif;font-weight:900;font-size:34px;letter-spacing:2px}.sub{font-size:13px;font-weight:700;letter-spacing:1px}
+.badge{padding:8px 13px;border:2px solid #5c351d;border-radius:20px;background:#fff6dc;font-weight:800}
+.main{display:grid;grid-template-columns:190px minmax(450px,1fr) 210px;gap:12px;padding:12px;background:#e4bb91}
+.side{background:#fff8e9;border:3px solid #6c3d20;border-radius:12px;padding:12px;box-shadow:inset 0 0 0 2px #e9bd61}
+.player{border-radius:12px;overflow:hidden;border:3px solid #222;margin-bottom:12px}.player h3{margin:0;padding:10px;color:white}.red h3{background:var(--red)}.blue h3{background:var(--blue)}
+.home{padding:10px;background:#fff3dc}.homegrid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.homeToken{height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#fff;border:2px solid #999;font-size:23px}
+.red .homeToken{box-shadow:inset 0 0 0 7px #ef202955}.blue .homeToken{box-shadow:inset 0 0 0 7px #3f49c855}
+.boardWrap{position:relative;aspect-ratio:1;border:6px solid #222;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 8px 20px #0007}
+.boardImage{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;image-rendering:auto}
+.grid{position:absolute;inset:8.4% 4.5% 4.5% 4.5%;display:grid;grid-template-columns:repeat(5,1fr);grid-template-rows:repeat(5,1fr)}
+.cell{position:relative;display:flex;align-items:center;justify-content:center;cursor:pointer;border:0}.cell:hover{background:#ffdf0060}.cell.valid{background:#54a80033;outline:3px solid #3a8a00;outline-offset:-5px}
+.token{width:28%;aspect-ratio:1;border-radius:50%;border:3px solid #fff;box-shadow:0 3px 6px #0008;z-index:5;position:relative}.token.red{background:var(--red)}.token.blue{background:var(--blue)}.token.active{animation:pulse .8s infinite}
+@keyframes pulse{50%{transform:scale(1.16)}}
+.marker{position:absolute;right:5px;top:4px;font-size:13px;z-index:4}
+.centerLabel{position:absolute;left:40%;top:40%;width:20%;height:20%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;text-shadow:0 1px 3px #000;z-index:2;font-size:12px;pointer-events:none}
+.controls{padding:10px 12px;background:#fff5de;border:3px solid #6c3d20;border-radius:12px;margin-top:12px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;align-items:stretch}
+.controlBox{text-align:center;border:2px solid #d2a764;border-radius:10px;padding:8px;background:#fffdf7}.big{font-size:26px;font-weight:900}.roll{border:0;border-radius:9px;background:#8e1715;color:#fff;padding:10px;font-size:18px;font-weight:900;cursor:pointer}.roll:disabled{opacity:.45}
+.status{font-weight:900;font-size:15px}.moves{margin-top:5px;font-size:13px}.log{margin-top:12px;max-height:180px;overflow:auto;background:#fff;border:1px solid #c6a06e;border-radius:8px;padding:8px;font-size:12px}.log div{padding:4px 0;border-bottom:1px solid #eee}
+.safeLegend{margin-top:12px;font-size:12px;line-height:1.5}.safeIcon{color:#7fbd00;font-size:22px;font-weight:900}.rule{font-size:12px;line-height:1.45}
+.challenge{display:none;position:fixed;inset:0;background:#0008;z-index:20;align-items:center;justify-content:center;padding:20px}.challenge.show{display:flex}.modal{width:min(470px,95vw);background:#fff9e9;border:5px solid #6c3d20;border-radius:16px;padding:20px}.modal h2{margin-top:0}.modal textarea{width:100%;height:90px;padding:10px;border:2px solid #c7a566;border-radius:8px}.modal button{margin-top:10px;width:100%;padding:12px;border:0;border-radius:8px;background:#2f7d19;color:white;font-weight:900}
+.footer{text-align:center;padding:10px;background:#3a1e13;color:#ffe8b0;font-weight:700}
+@media(max-width:900px){.main{grid-template-columns:1fr}.side{display:block}.boardWrap{max-width:700px;margin:auto}.controls{grid-template-columns:1fr}.brand{font-size:25px}}
+</style>
+</head>
+<body>
+    <div class="app">
+<header class="header"><div><div class="brand">CHOWKA KAUDI</div><div class="sub">PLAY • LEARN • PRESERVE</div></div><div class="badge">SIH 2026 • PROTOTYPE</div></header>
+<div class="main">
+<aside class="side">
+<div class="player red"><h3>PLAYER 1 • RED</h3><div class="home"><b>Starting Block</b><div class="homegrid" id="homeRed"></div></div></div>
+<div class="safeLegend"><b><span class="safeIcon">●</span> Safe Zones</b><br>Green Kaudi-marked cells cannot capture a player. Entering one opens a heritage challenge.</div>
+<hr>
+<div class="rule"><b>Path:</b> Outer perimeter → anti-clockwise. Inner periphery → clockwise.</div>
+</aside>
+<main>
+<div class="boardWrap">
+<img class="boardImage" src="KAVADI BOARD 1.png" alt="Chowka Kaudi board">
+<div class="grid" id="grid"></div>
+<div class="centerLabel">MAHAL</div>
+</div>
+<div class="controls">
+<div class="controlBox"><b>KAUDI TOSS</b><div id="dice" class="big">— + —</div><button class="roll" id="rollBtn" onclick="roll()">ROLL KAUDI</button></div>
+<div class="controlBox"><b>AVAILABLE MOVE</b><div id="moveVal" class="big">—</div><div id="moveHint">Toss to start</div></div>
+<div class="controlBox"><b>CURRENT TURN</b><div id="turn" class="big">🔴 P1</div><div class="status" id="status">Choose a roll</div></div>
+</div>
+</main>
+<aside class="side">
+<div class="player blue"><h3>PLAYER 2 • BLUE</h3><div class="home"><b>Starting Block</b><div class="homegrid" id="homeBlue"></div></div></div>
+<div><b>GAME LOG</b><div class="log" id="log"></div></div>
+<hr>
+<div class="rule"><b>Victory:</b> secure all four kaudis in the central Mahal. At least one opponent kaudi must be captured before a player can enter Mahal.</div>
+<button onclick="newGame()" style="width:100%;margin-top:10px;padding:10px;border:0;border-radius:8px;background:#3b2418;color:white;font-weight:900;cursor:pointer">NEW GAME</button>
+</aside>
+</div>
+<div class="footer">A Game of Strategy, Heritage and Friendship</div>
+</div>
+
+<div class="challenge" id="challenge"><div class="modal"><h2>🟢 Safe Zone — Heritage Challenge</h2><p>This kaudi entered a safe zone. Share a <b>unique Indian heritage fact</b> with your opponent.</p><textarea id="fact" placeholder="Type your heritage fact..."></textarea><button onclick="submitFact()">SUBMIT & CONTINUE</button></div></div>
+
+
+    <script>
+        const imgPath="KAVADI BOARD 1.png";
+        const path=[
+        [0,2],[0,1],[0,0],[1,0],[2,0],[3,0],[4,0],[4,1],[4,2],[4,3],[4,4],[3,4],[2,4],[1,4],[0,4],[0,3],
+        [1,3],[2,3],[3,3],[3,2],[3,1],[2,1],[1,1],[1,2]
+        ];
+        const safe=new Set([4,14,18,22]); // exactly the four green Kaudi-marked cells in supplied board
+        const entry=[0,2,8]; // red enters top-middle; blue uses opposite bottom-middle
+        const S={turn:0,pos:[[-1,-1,-1,-1],[-1,-1,-1,-1]],captured:[0,0],roll:null,pending:null,winner:null};
+        const grid=document.getElementById('grid');
+        for(let i=0;i<25;i++){const c=document.createElement('div');c.className='cell';c.dataset.i=i;c.onclick=()=>clickCell(i);grid.appendChild(c)}
+        function cellIndex(rc){return rc[0]*5+rc[1]}
+        function render(){
+        document.querySelectorAll('.cell').forEach((c,i)=>{c.innerHTML='';c.classList.remove('valid');});
+        for(let p=0;p<2;p++)for(let g=0;g<4;g++){let k=S.pos[p][g];if(k<0)continue;let idx;if(k===24)idx=cellIndex([2,2]);else idx=cellIndex(path[(k+(p===1?8:0))%path.length]);let t=document.createElement('div');t.className='token '+(p?'blue':'red')+(S.pending&&S.pending.p===p&&S.pending.g===g?' active':'');grid.children[idx].appendChild(t)}
+        if(S.roll){for(let g=0;g<4;g++){let k=S.pos[S.turn][g];if(k>=0&&k<24)grid.children[cellIndex(path[(k+(S.turn?8:0))%path.length])].classList.add('valid')} if(S.pos[S.turn].includes(-1))grid.children[cellIndex(path[S.turn?8:0])].classList.add('valid')}
+        document.getElementById('turn').textContent=S.turn?'🔵 P2':'🔴 P1';
+        document.getElementById('status').textContent=S.winner?`Player ${S.winner+1} wins!`:(S.roll?`Move ${S.roll.value} square${S.roll.value>1?'s':''}`:'Choose a roll');
+        updateHomes();
+        }
+        function updateHomes(){
+        for(let p=0;p<2;p++){let el=document.getElementById(p?'homeBlue':'homeRed');el.innerHTML='';for(let g=0;g<4;g++){let t=document.createElement('div');t.className='homeToken';t.textContent=S.pos[p][g]<0?'🐚':(S.pos[p][g]===24?'🏰':'✓');el.appendChild(t)}}
+        }
+        function log(s){let e=document.getElementById('log');e.innerHTML+=`<div>${s}</div>`;e.scrollTop=e.scrollHeight}
+        function roll(){
+        if(S.roll||S.winner)return;
+        const a=Math.random()<.5,b=Math.random()<.5;
+        const value=a&&b?2:(!a&&!b?4:1);
+        S.roll={a,b,value};
+        document.getElementById('dice').textContent=`${a?'UP':'DOWN'} + ${b?'UP':'DOWN'}`;
+        document.getElementById('moveVal').textContent=value;
+        document.getElementById('moveHint').textContent=(a&&b)?'Bonus turn after move':'Select a kaudi';
+        document.getElementById('rollBtn').disabled=true;
+        log(`P${S.turn+1}: ${a?'UP':'DOWN'} + ${b?'UP':'DOWN'} → ${value} move${value>1?'s':''}.`);
+        render();
+        }
+        function clickCell(idx){
+        if(!S.roll||S.winner)return;
+        let p=S.turn, found=-1;
+        for(let g=0;g<4;g++){
+        let k=S.pos[p][g];
+        if(k<0){let start=cellIndex(path[p?8:0]);if(idx===start){found=g;break}}
+        else if(cellIndex(path[(k+(p?8:0))%path.length])===idx){found=g;break}
+        }
+        if(found<0)return;
+        move(found);
+        }
+        function move(g){
+        const p=S.turn,v=S.roll.value,old=S.pos[p][g];
+        let target=old<0?0:old+v;
+        // Mahal is an exact-entry final square.
+        if(target>24){log('Exact entry required for Mahal.');return}
+        if(target===24 && S.captured[p]<1){log(`P${p+1} must capture at least one opponent kaudi before entering Mahal.`);return}
+        S.pos[p][g]=target;
+
+        if(target<24){
+        const visualK=(target+(p?8:0))%path.length;
+        if(!safe.has(visualK)){
+            for(let og=0;og<4;og++){
+            if(S.pos[1-p][og]>=0&&S.pos[1-p][og]<24){
+                const oppK=(S.pos[1-p][og]+(1-p?8:0))%path.length;
+                if(oppK===visualK){
+                S.pos[1-p][og]=-1;S.captured[p]++;
+                log(`P${p+1} captured P${2-p}'s kaudi (Maat)!`);
+                }
+            }
+            }
+        } else {
+            S.pending={p,g};
+            document.getElementById('challenge').classList.add('show');
+        }
+        } else {
+        log(`P${p+1} entered a kaudi into MAHAL.`);
+        }
+
+        if(S.captured[p]>=1 && S.pos[p].every(k=>k===24))S.winner=p;
+        const bonus=S.roll.a&&S.roll.b;
+        S.roll=null;document.getElementById('rollBtn').disabled=false;
+        if(!bonus)S.turn=1-p;
+        render();
+        }
+        function submitFact(){
+        const f=document.getElementById('fact').value.trim();if(!f)return;
+        log(`P${S.pending.p+1}: heritage fact submitted for peer validation.`);
+        document.getElementById('fact').value='';document.getElementById('challenge').classList.remove('show');S.pending=null;
+        render();
+        }
+        function newGame(){location.reload()}
+        log('Game ready. P1 starts from the RED starting block.');
+        render();
+    </script>
+</body>
+</html>
